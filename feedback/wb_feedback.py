@@ -30,12 +30,12 @@ class Feedback:
         self.product_sku = str(sku)
         self.feedbacks = feedbacks if feedbacks else self.__get_feedbacks()
 
-    def negative_feedbacks(self):
+    def negative_feedbacks(self, min_rate: int = 3):
         if not self.feedbacks.feedbacks:
             return Feedback(self.product_sku, self.feedbacks)
 
         filtered_feedbacks = [
-            x for x in self.feedbacks.feedbacks if x.productValuation <= 3
+            x for x in self.feedbacks.feedbacks if x.productValuation <= min_rate
         ]
         new_feedback = self.feedbacks
         new_feedback.feedbacks = filtered_feedbacks
