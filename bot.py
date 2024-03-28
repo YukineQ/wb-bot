@@ -126,7 +126,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     )
 
 
-def main() -> None:
+def run_bot() -> None:
 
     application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
 
@@ -144,7 +144,3 @@ def main() -> None:
     application.add_error_handler(error_handler)
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
-
-
-if __name__ == "__main__":
-    main()
