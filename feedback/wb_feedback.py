@@ -19,6 +19,7 @@ class FeedbacksDTO(BaseModel):
     text: str | None
     productValuation: int
     createdDate: datetime
+    updatedDate: datetime
 
 
 class Feedback:
@@ -30,7 +31,7 @@ class Feedback:
         self.product_sku = str(sku)
         self.feedbacks = feedbacks if feedbacks else self.__get_feedbacks()
 
-    def negative_feedbacks(self, min_rate: int = 3):
+    def negative_feedbacks(self, min_rate: int = 4):
         if not self.feedbacks.feedbacks:
             return Feedback(self.product_sku, self.feedbacks)
 
@@ -49,7 +50,7 @@ class Feedback:
 
         filtered_feedbacks = [
             x for x in self.feedbacks.feedbacks
-            if x.createdDate.timestamp() >= past.timestamp()
+            if x.updatedDate.timestamp() >= past.timestamp()
         ]
         new_feedback = self.feedbacks
         new_feedback.feedbacks = filtered_feedbacks
