@@ -9,6 +9,7 @@ from telegram.ext import (
 )
 
 import constants
+import setting
 from feedback.wb_feedback import Feedback
 from helpers import (
     read_sheet,
@@ -19,7 +20,6 @@ from helpers import (
 )
 from chat_bot.error_handler import error_handler
 
-EXCEL_FILE_PATH = os.getenv("EXCEL_FILE_PATH")
 
 logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s", level=logging.INFO
@@ -42,7 +42,7 @@ async def send_feedback_to_chat(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def _get_sku_list():
-    df = read_sheet(EXCEL_FILE_PATH)
+    df = read_sheet(setting.EXCEL_FILE_PATH)
     return df['SKU'].tolist()
 
 
@@ -109,7 +109,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 def run_bot() -> None:
 
-    application = Application.builder().token(os.getenv("BOT_TOKEN")).build()
+    application = Application.builder().token(setting.BOT_TOKEN).build()
 
     job_queue = application.job_queue
 
