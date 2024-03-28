@@ -1,5 +1,5 @@
 from dotenv import load_dotenv
-from bot import run_bot
+from chat_bot.bot import run_bot
 
 
 if __name__ == '__main__':
