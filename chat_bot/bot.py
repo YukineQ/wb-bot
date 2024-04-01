@@ -1,4 +1,3 @@
-import os
 import logging
 
 from telegram import Update
@@ -121,6 +120,7 @@ def run_bot() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("end", end))
+    application.add_handler(CommandHandler("test", send_feedback_to_chat))
 
     application.add_error_handler(error_handler)
 
