@@ -8,15 +8,10 @@ from telegram.ext import (
 )
 
 import constants
-import settings
+from config import config
 from feedback.wb_feedback import Feedback
-from helpers import (
-    read_sheet,
-    set_chat_id,
-    get_chat_id_by_key,
-    get_chat_keys,
-    delete_chat_by_key,
-)
+from core.helpers.excel import read_sheet
+from core.helpers.cache import Cache
 from chat_bot.error_handler import error_handler
 
 
@@ -30,7 +25,7 @@ logger = logging.getLogger(__name__)
 
 
 async def send_feedback_to_chat(context: ContextTypes.DEFAULT_TYPE) -> None:
-    chats = get_chat_keys()
+    chats = await Cache.backend.get_keys()
 
     for sku in _get_sku_list():
         await _send_feedback_for_all_chats(
@@ -41,7 +36,7 @@ async def send_feedback_to_chat(context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def _get_sku_list():
-    df = read_sheet(settings.EXCEL_FILE_PATH)
+    df = read_sheet(config.EXCEL_FILE_PATH)
     return df['SKU'].tolist()
 
 
@@ -52,7 +47,7 @@ async def _send_feedback_for_all_chats(
     context: ContextTypes.DEFAULT_TYPE
 ):
     for key in chats:
-        chat_id = get_chat_id_by_key(key)
+        chat_id = await Cache.backend.get(key=key)
 
         await _send_feedback_message(
             sku=sku,
@@ -88,7 +83,7 @@ async def _send_feedback_message(
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat.id
-    set_chat_id(key=chat_id, val=chat_id)
+    await Cache.backend.set(key=chat_id, val=chat_id)
 
     await context.bot.send_message(
         update.effective_chat.id,
@@ -98,7 +93,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
     chat_id = update.message.chat.id
-    delete_chat_by_key(key=chat_id)
+    await Cache.backend.delete(key=chat_id)
 
     await context.bot.send_message(
         update.effective_chat.id,
@@ -107,8 +102,7 @@ async def end(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
 
 
 def run_bot() -> None:
-
-    application = Application.builder().token(settings.BOT_TOKEN).build()
+    application = Application.builder().token(config.BOT_TOKEN).build()
 
     job_queue = application.job_queue
 
@@ -120,7 +114,6 @@ def run_bot() -> None:
 
     application.add_handler(CommandHandler("start", start))
     application.add_handler(CommandHandler("end", end))
-    application.add_handler(CommandHandler("test", send_feedback_to_chat))
 
     application.add_error_handler(error_handler)
 
